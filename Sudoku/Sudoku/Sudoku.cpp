@@ -11,13 +11,14 @@
 using namespace std;
 const int boardSize = 9;
 int board[boardSize][boardSize];
+int partialBoard[boardSize][boardSize];
 int hold;
 int quadSize = pow(boardSize, 0.5);
 
 void print_board(int board[][boardSize]) {
 	for (int y = 0; y < boardSize; y++) {
 		if (y % quadSize == 0) {
-			cout << "---------------------------" << endl;
+			cout << "-----------------------" << endl;
 		}
 		cout << "|";
 		for (int x = 0; x < boardSize; x++) {
@@ -36,7 +37,15 @@ void print_board(int board[][boardSize]) {
 		cout << "|" << endl;
 
 	}
-	cout << "---------------------------" << endl;
+	cout << "-----------------------" << endl;
+}
+
+void board_clear(int board[][boardSize]) {
+	for (int y = 0; y < boardSize; y++) {
+		for (int x = 0; x < boardSize; x++) {
+			board[y][x] = 0;
+		}
+	}
 }
 
 bool valid_move(int board[][boardSize], int _x, int _y, int num) {
@@ -65,7 +74,7 @@ bool valid_move(int board[][boardSize], int _x, int _y, int num) {
 
 void setup_board(int board[][boardSize]) {
 	int placed = 0;
-	while (placed < 65) {
+	while (placed < 30) {
 		int x = rand() % boardSize;
 		int y = rand() % boardSize;
 		int num = (rand() % boardSize) + 1;
@@ -115,28 +124,43 @@ void solve(int board[][boardSize]) {
 		}
 		for (int i = 0; i < valid.size(); i++) {
 			if (valid.at(i) == 1) {
-				cout << valid.at(i) << endl;
 				done = true;
 			}
 		}
 		if (!done) {
 			break;
 		}
+
 	}
 }
 
+void copy_board(int board[][boardSize], int partialBoard[][boardSize]) {
+	for (int y = 0; y < boardSize; y++) {
+		for (int x = 0; x < boardSize; x++) {
+			partialBoard[y][x] = board[y][x];
+		}
+	}
+}
 
 int main()
 {
 	srand(time(NULL));
 	int count = 0;
 	while (!finished(board)) {
+		board_clear(board);
+		board_clear(partialBoard);
 		setup_board(board);
+		copy_board(board,partialBoard);
 		//print_board(board);
 		solve(board);
 		//print_board(board);
-		cout << ++count << endl;
+		if (count % 10000 == 0) {
+			cout << count << endl;
+		}
+		count++;
 	}
+	cout << count << endl;
+	print_board(partialBoard);
 	print_board(board);
 	cout << "finished" << endl;
 	cin >> hold;
