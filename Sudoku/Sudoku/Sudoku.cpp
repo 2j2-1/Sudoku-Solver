@@ -7,6 +7,7 @@
 #include "math.h"
 #include <time.h>
 #include "vector"
+#include <fstream>
 
 using namespace std;
 const int boardSize = 9;
@@ -18,7 +19,9 @@ int quadSize = pow(boardSize, 0.5);
 void print_board(int board[][boardSize]) {
 	for (int y = 0; y < boardSize; y++) {
 		if (y % quadSize == 0) {
-			cout << "-----------------------" << endl;
+			for (int i = 0; i < (boardSize*2)+(boardSize/quadSize)+2; i++)
+				cout << "-";
+			cout << endl;
 		}
 		cout << "|";
 		for (int x = 0; x < boardSize; x++) {
@@ -37,7 +40,9 @@ void print_board(int board[][boardSize]) {
 		cout << "|" << endl;
 
 	}
-	cout << "-----------------------" << endl;
+	for (int i = 0; i < (boardSize * 2) + (boardSize / quadSize) + 2; i++)
+		cout << "-";
+	cout << endl;
 }
 
 void board_clear(int board[][boardSize]) {
@@ -84,6 +89,7 @@ void setup_board(int board[][boardSize]) {
 		}
 	}
 }
+
 bool finished(int board[][boardSize]) {
 	for (int y = 0; y < boardSize; y++) {
 		for (int x = 0; x < boardSize; x++) {
@@ -134,6 +140,60 @@ void solve(int board[][boardSize]) {
 	}
 }
 
+void to_file(int board[][boardSize], int x, int y, int value) {
+	ofstream myfile;
+	myfile.open("example.txt", ios_base::app);
+	for (int x = 0; x < boardSize; x++) {
+		for (int y = 0; y < boardSize; y++) {
+			myfile << board[y][x];
+		}
+		//myfile << endl;
+	}
+	myfile << "," << x << "," << y << "," << value << endl;
+	myfile.close();
+}
+
+void generate_training_data(int board[][boardSize]) {
+	bool done;
+	vector<int> avalible;
+	vector<int> valid;
+
+	while (!finished(board)) {
+		valid.clear();
+		done = false;
+		//print_board(board);
+		//cin >> done;
+		for (int y = 0; y < boardSize; y++) {
+			for (int x = 0; x < boardSize; x++) {
+				if (board[y][x] == 0) {
+					avalible.clear();
+					for (int i = 0; i < boardSize; i++)
+					{
+						if (valid_move(board, x, y, i + 1)) {
+							avalible.push_back(i + 1);
+						}
+					}
+					if (avalible.size() == 1) {
+						to_file(board, x, y, avalible.at(0));
+						board[y][x] = avalible.at(0);
+						valid.push_back(board[y][x]);
+						
+					}
+				}
+			}
+		}
+		for (int i = 0; i < valid.size(); i++) {
+			if (valid.at(i) == 1) {
+				done = true;
+			}
+		}
+		if (!done) {
+			break;
+		}
+
+	}
+}
+
 void copy_board(int board[][boardSize], int partialBoard[][boardSize]) {
 	for (int y = 0; y < boardSize; y++) {
 		for (int x = 0; x < boardSize; x++) {
@@ -142,26 +202,27 @@ void copy_board(int board[][boardSize], int partialBoard[][boardSize]) {
 	}
 }
 
+
+
 int main()
 {
 	srand(time(NULL));
-	int count = 0;
-	while (!finished(board)) {
-		board_clear(board);
-		board_clear(partialBoard);
-		setup_board(board);
-		copy_board(board,partialBoard);
+	for (int i = 0; i < 100; i++){
+		int count = 0;
+		do{	board_clear(board);
+			board_clear(partialBoard);
+			setup_board(board);
+			copy_board(board, partialBoard);
+			solve(board);
+			count++;
+		} while (!finished(board));
+		cout << count << endl;
+		//print_board(partialBoard);
 		//print_board(board);
-		solve(board);
-		//print_board(board);
-		if (count % 10000 == 0) {
-			cout << count << endl;
-		}
-		count++;
+		//solve(partialBoard);
+		generate_training_data(partialBoard);
+		
 	}
-	cout << count << endl;
-	print_board(partialBoard);
-	print_board(board);
 	cout << "finished" << endl;
 	cin >> hold;
 	return 0;
