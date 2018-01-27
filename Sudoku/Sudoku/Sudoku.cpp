@@ -140,16 +140,17 @@ void solve(int board[][boardSize]) {
 	}
 }
 
-void to_file(int board[][boardSize], int x, int y, int value) {
+void to_file(int board[][boardSize]) {
 	ofstream myfile;
-	myfile.open("example.txt", ios_base::app);
+	myfile.open("Valid-Boards.txt", ios_base::app);
 	for (int x = 0; x < boardSize; x++) {
 		for (int y = 0; y < boardSize; y++) {
 			myfile << board[y][x];
 		}
 		//myfile << endl;
 	}
-	myfile << "," << x << "," << y << "," << value << endl;
+	//myfile << "," << x << "," << y << "," << value << endl;
+	myfile << endl;
 	myfile.close();
 }
 
@@ -174,7 +175,7 @@ void generate_training_data(int board[][boardSize]) {
 						}
 					}
 					if (avalible.size() == 1) {
-						to_file(board, x, y, avalible.at(0));
+						//to_file(board, x, y, avalible.at(0));
 						board[y][x] = avalible.at(0);
 						valid.push_back(board[y][x]);
 						
@@ -202,12 +203,10 @@ void copy_board(int board[][boardSize], int partialBoard[][boardSize]) {
 	}
 }
 
-
-
 int main()
 {
 	srand(time(NULL));
-	for (int i = 0; i < 100; i++){
+	for (int i = 0; i < 100000; i++){
 		int count = 0;
 		do{	board_clear(board);
 			board_clear(partialBoard);
@@ -216,15 +215,15 @@ int main()
 			solve(board);
 			count++;
 		} while (!finished(board));
-		cout << count << endl;
+		cout << count << ", " << i << endl;
 		//print_board(partialBoard);
 		//print_board(board);
 		//solve(partialBoard);
-		generate_training_data(partialBoard);
+		//generate_training_data(partialBoard);
+		to_file(partialBoard);
 		
 	}
 	cout << "finished" << endl;
 	cin >> hold;
 	return 0;
 }
-
