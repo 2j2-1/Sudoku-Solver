@@ -15,6 +15,7 @@ int board[boardSize][boardSize];
 int partialBoard[boardSize][boardSize];
 int hold;
 int quadSize = pow(boardSize, 0.5);
+int difficulty;
 
 void print_board(int board[][boardSize]) {
 	for (int y = 0; y < boardSize; y++) {
@@ -79,7 +80,7 @@ bool valid_move(int board[][boardSize], int _x, int _y, int num) {
 
 void setup_board(int board[][boardSize]) {
 	int placed = 0;
-	while (placed < 30) {
+	while (placed < difficulty) {
 		int x = rand() % boardSize;
 		int y = rand() % boardSize;
 		int num = (rand() % boardSize) + 1;
@@ -99,6 +100,17 @@ bool finished(int board[][boardSize]) {
 		}
 	}
 	return true;
+}
+
+bool findUnassingnedLocation(int board[][boardSize], int &x, int &y) {
+	for (x = 0; x < boardSize; x++) {
+		for (y = 0; y < boardSize; y++) {
+			if (board[y][x] == 0) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 void solve(int board[][boardSize]) {
@@ -140,9 +152,32 @@ void solve(int board[][boardSize]) {
 	}
 }
 
+bool backtrack(int board[][boardSize]) {
+	int x = 0;
+	int y = 0;
+	int temp;
+	if (!findUnassingnedLocation(board, x, y)) {
+		return true;
+	}
+	for (int i = 1; i <= 9; i++) {
+		if (valid_move(board, x, y, i)) {
+			board[y][x] = i;
+			//print_board(board);
+			//cin >> temp;
+
+
+			if (backtrack(board)) {
+				return true;
+			}
+			board[y][x] = 0;
+		}
+	}
+	return false;
+}
+
 void to_file(int board[][boardSize]) {
 	ofstream myfile;
-	myfile.open("Valid-Boards.txt", ios_base::app);
+	myfile.open("Valid-Boards-9.txt", ios_base::app);
 	for (int x = 0; x < boardSize; x++) {
 		for (int y = 0; y < boardSize; y++) {
 			myfile << board[y][x];
@@ -203,16 +238,19 @@ void copy_board(int board[][boardSize], int partialBoard[][boardSize]) {
 	}
 }
 
-int main()
-{
+int main(){
+	int temp;
 	srand(time(NULL));
-	for (int i = 0; i < 100000; i++){
-		int count = 0;
-		do{	board_clear(board);
+	difficulty = 30;
+	for (int i = 0; i < 1000; i++){
+		int count = 1;
+		do{	
+			board_clear(board);
 			board_clear(partialBoard);
 			setup_board(board);
 			copy_board(board, partialBoard);
-			solve(board);
+			backtrack(board);
+			//solve(board);
 			count++;
 		} while (!finished(board));
 		cout << count << ", " << i << endl;
