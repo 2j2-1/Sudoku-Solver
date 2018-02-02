@@ -121,8 +121,6 @@ void solve(int board[][boardSize]) {
 	while (!finished(board)) {
 		valid.clear();
 		done = false;
-		//print_board(board);
-		//cin >> done;
 		for (int y = 0; y < boardSize; y++) {
 			for (int x = 0; x < boardSize; x++) {
 				if (board[y][x] == 0) {
@@ -162,10 +160,6 @@ bool backtrack(int board[][boardSize]) {
 	for (int i = 1; i <= 9; i++) {
 		if (valid_move(board, x, y, i)) {
 			board[y][x] = i;
-			//print_board(board);
-			//cin >> temp;
-
-
 			if (backtrack(board)) {
 				return true;
 			}
@@ -182,52 +176,9 @@ void to_file(int board[][boardSize]) {
 		for (int y = 0; y < boardSize; y++) {
 			myfile << board[y][x];
 		}
-		//myfile << endl;
 	}
-	//myfile << "," << x << "," << y << "," << value << endl;
 	myfile << endl;
 	myfile.close();
-}
-
-void generate_training_data(int board[][boardSize]) {
-	bool done;
-	vector<int> avalible;
-	vector<int> valid;
-
-	while (!finished(board)) {
-		valid.clear();
-		done = false;
-		//print_board(board);
-		//cin >> done;
-		for (int y = 0; y < boardSize; y++) {
-			for (int x = 0; x < boardSize; x++) {
-				if (board[y][x] == 0) {
-					avalible.clear();
-					for (int i = 0; i < boardSize; i++)
-					{
-						if (valid_move(board, x, y, i + 1)) {
-							avalible.push_back(i + 1);
-						}
-					}
-					if (avalible.size() == 1) {
-						//to_file(board, x, y, avalible.at(0));
-						board[y][x] = avalible.at(0);
-						valid.push_back(board[y][x]);
-						
-					}
-				}
-			}
-		}
-		for (int i = 0; i < valid.size(); i++) {
-			if (valid.at(i) == 1) {
-				done = true;
-			}
-		}
-		if (!done) {
-			break;
-		}
-
-	}
 }
 
 void copy_board(int board[][boardSize], int partialBoard[][boardSize]) {
@@ -254,10 +205,6 @@ int main(){
 			count++;
 		} while (!finished(board));
 		cout << count << ", " << i << endl;
-		//print_board(partialBoard);
-		//print_board(board);
-		//solve(partialBoard);
-		//generate_training_data(partialBoard);
 		to_file(partialBoard);
 		
 	}
